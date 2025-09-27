@@ -1,27 +1,22 @@
 import conf from "../conf/conf.js";
 import axios from "axios";
 
-// Set up base URL for the API
 const API_BASE_URL = `${conf.server_url}/api/user`;
 
+// Fetch profile
 export const fetchUserProfile = async () => {
-  //   console.log("fetching user Profile");
-  try {
-    const token = localStorage.getItem("token");
-    // console.log({ token });
+  const token = localStorage.getItem("token");
+  const response = await axios.get(`${API_BASE_URL}/profile`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
 
-    if (!token) {
-      throw new Error("No authentication token found");
-    }
-    const response = await axios.get(`${API_BASE_URL}/profile`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    // console.log({ response });
-
-    return response.data;
-  } catch (error) {
-    throw error.response?.data?.error || "Failed to fetch profile";
-  }
+// Update profile
+export const updateUserProfile = async (profileData) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.put(`${API_BASE_URL}/profile`, profileData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
 };

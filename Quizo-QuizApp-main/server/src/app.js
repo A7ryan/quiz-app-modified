@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import helmet from "helmet";
 import conf from "./conf/conf.js";
 import path from "path";
+import scoreRoutes from "./routes/score.routes.js";
 
 import Routes from "./routes/index.js"; // central routes file
 
@@ -19,6 +20,9 @@ app.use(
     contentSecurityPolicy: false,
   })
 );
+
+app.use("/api/scores", scoreRoutes);
+
 
 // ✅ CORS (allow your frontend)
 app.use(
