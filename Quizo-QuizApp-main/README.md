@@ -5,7 +5,7 @@ The **Online Quiz Platform** is a full-stack web application designed for quiz c
 
 ![Image](https://github.com/user-attachments/assets/cb1bebb5-3a9c-4d5e-bcd0-71d3cb1a30bf)
 
-# Features
+# Featureswq
 
 ### **Functionality**
 
