@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchQuizQuestions } from "../../api";
+import { fetchQuizQuestions, submitQuizScore } from "../../api";
 import QuizStart from "./QuizStart";
 import QuizQuestion from "./QuizQuestion";
 import QuizResult from "./QuizResult";
@@ -13,6 +13,9 @@ const QuizComponent = () => {
   const [timer, setTimer] = useState(30);
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
+
+  // fake quizId until you have a quiz container
+  const quizId = "default-quiz-1"; // ✅ can later come from router params
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,8 +44,6 @@ const QuizComponent = () => {
   }, [quizStarted, timer]);
 
   const handleAnswerSelect = (choice) => {
-    // console.log({ choice });
-
     setSelectedAnswers((prev) => ({
       ...prev,
       [currentQuestion]: choice,
@@ -59,14 +60,28 @@ const QuizComponent = () => {
     }
   };
 
-  const calculateScore = () => {
+  const calculateScore = async () => {
     let newScore = 0;
-    quizData.forEach((question, index) => {
-      if (selectedAnswers[index] === question.correctAnswer) {
-        newScore += 1;
-      }
+    const answers = quizData.map((question, index) => {
+      const selectedAnswer = selectedAnswers[index] || null;
+      const isCorrect = selectedAnswer === question.correctAnswer;
+      if (isCorrect) newScore += 1;
+
+      return {
+        questionId: question._id,
+        selectedAnswer,
+        isCorrect,
+      };
     });
+
     setScore(newScore);
+
+    try {
+      await submitQuizScore("quiz", quizId, answers);  // ✅ send quizId
+      console.log("✅ Score submitted to backend!");
+    } catch (error) {
+      console.error("❌ Failed to submit score:", error);
+    }
   };
 
   if (!quizStarted) {
@@ -90,33 +105,29 @@ const QuizComponent = () => {
   }
 
   return (
-    <>
-      <div
-        className="w-full h-screen bg-cover bg-center flex flex-col items-center justify-center text-white p-6"
-        style={{ backgroundImage: `url(${quizBg})` }}
+    <div
+      className="w-full h-screen bg-cover bg-center flex flex-col items-center justify-center text-white p-6"
+      style={{ backgroundImage: `url(${quizBg})` }}
+    >
+      <h1 className="text-6xl font-bold mb-6">Quiz</h1>
+
+      {quizData.length > 0 && (
+        <QuizQuestion
+          question={quizData[currentQuestion].question}
+          choices={quizData[currentQuestion].choices}
+          timer={timer}
+          handleAnswerSelect={handleAnswerSelect}
+          selectedAnswer={selectedAnswers[currentQuestion]}
+        />
+      )}
+
+      <button
+        className="mt-2 px-6 py-3 bg-green-500 hover:bg-green-600 transition text-white rounded-md shadow-lg"
+        onClick={handleNextQuestion}
       >
-        <h1 className="text-6xl  font-bold mb-6">Quiz</h1>
-
-        {quizData.length > 0 && (
-          <QuizQuestion
-            question={quizData[currentQuestion].question}
-            choices={quizData[currentQuestion].choices}
-            timer={timer}
-            handleAnswerSelect={handleAnswerSelect}
-            selectedAnswer={selectedAnswers[currentQuestion]}
-          />
-        )}
-
-        <button
-          className="mt-2 px-6 py-3 bg-green-500 hover:bg-green-600 transition text-white rounded-md shadow-lg"
-          onClick={handleNextQuestion}
-        >
-          {currentQuestion === quizData.length - 1
-            ? "Submit Quiz"
-            : "Next Question"}
-        </button>
-      </div>
-    </>
+        {currentQuestion === quizData.length - 1 ? "Submit Quiz" : "Next Question"}
+      </button>
+    </div>
   );
 };
 

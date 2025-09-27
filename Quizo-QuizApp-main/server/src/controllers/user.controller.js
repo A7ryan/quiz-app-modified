@@ -1,82 +1,62 @@
 import { User } from "../models/user.model.js";
 
-// Function to filter the user data to only include specific fields
-const filterUserData = (user) => {
-  return {
-    name: user.name,
-    email: user.email,
-    gender: user.gender,
-    address: user.address,
-    phone: user.phone,
-    userType: user.userType,
-    picture: user.picture,
-  };
-};
-
-// Common error handler function
-const handleError = (res, error) => {
-  console.error("Error:", error);
-  return res.status(500).json({ message: "Internal Server Error" });
-};
-
+// View profile
 const UserViewProfileController = async (req, res) => {
-  const userId = req.user.userId;
-  //   console.log({ userId });
-
   try {
-    const user = await User.findOne({ _id: userId });
-    // console.log({ user });
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Filter user data before sending it in the response
-    const filteredUser = filterUserData(user);
     res.status(200).json({
-      message: "User profile fetched successfully",
-      user: filteredUser,
+      message: "Profile fetched successfully",
+      user: {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        gender: user.gender,
+        address: user.address,
+        picture: user.picture,
+        userType: user.userType,
+      },
     });
   } catch (error) {
-    handleError(res, error);
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
+// Update profile (only phone, gender, address, name allowed — NOT email)
 const UserUpdateProfileController = async (req, res) => {
-  const userId = req.user.uid;
-  const updatedData = req.body;
-
   try {
-    const user = await User.findOne({ uid: userId });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    const userId = req.user.userId;
+    const { name, phone, gender, address, picture } = req.body;
 
-    const allowedUpdates = [
-      "name",
-      "age",
-      "gender",
-      "address",
-      "phone",
-      "picture",
-    ];
+    const allowedUpdates = { name, phone, gender, address, picture };
 
-    allowedUpdates.forEach((field) => {
-      if (updatedData[field] !== undefined) {
-        user[field] = updatedData[field];
-      }
-    });
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: allowedUpdates },
+      { new: true, runValidators: true }
+    );
 
-    await user.save();
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Filter user data before sending it in the response
-    const filteredUser = filterUserData(user);
     res.status(200).json({
-      message: "User profile updated successfully",
-      user: filteredUser,
+      message: "Profile updated successfully",
+      user: {
+        name: user.name,
+        email: user.email, // email stays fixed
+        phone: user.phone,
+        gender: user.gender,
+        address: user.address,
+        picture: user.picture,
+        userType: user.userType,
+      },
     });
   } catch (error) {
-    handleError(res, error);
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
