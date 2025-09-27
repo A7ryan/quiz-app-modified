@@ -150,9 +150,17 @@ export const loginUserWithEmail = async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      { 
+        userId: user._id,
+        userType: user.userType,
+        email: user.email 
+      }, 
+      JWT_SECRET, 
+      {
+        expiresIn: "7d",
+      }
+    );
 
     return res.status(200).json({
       message: "Login successful.",

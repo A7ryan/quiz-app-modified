@@ -1,11 +1,12 @@
 import express from "express";
 import { verifyToken } from "../middlewares/auth.middleware.js";
+import { requireStudent, requireAuthenticated } from "../middlewares/role.middleware.js";
 import { Score } from "../models/score.model.js";
 
 const router = express.Router();
 
-// Submit quiz (1 quiz, multiple questions)
-router.post("/submit", verifyToken, async (req, res) => {
+// Submit quiz (1 quiz, multiple questions) - only students can submit
+router.post("/submit", verifyToken, requireStudent, async (req, res) => {
   try {
     const { answers } = req.body;
 
@@ -33,8 +34,8 @@ router.post("/submit", verifyToken, async (req, res) => {
   }
 });
 
-// Get all past attempts for logged-in user
-router.get("/my-scores", verifyToken, async (req, res) => {
+// Get all past attempts for logged-in user - both students and faculty can view scores
+router.get("/my-scores", verifyToken, requireAuthenticated, async (req, res) => {
   try {
     const scores = await Score.find({ user: req.user.userId })
       .sort({ createdAt: -1 });
