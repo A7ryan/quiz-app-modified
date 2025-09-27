@@ -4,10 +4,18 @@ import axios from "axios";
 // Set up base URL for the API
 const API_BASE_URL = `${conf.server_url}/api/quiz`;
 
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 // Fetch all quiz questions
 export const fetchQuizQuestions = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/questions`);
+    const response = await axios.get(`${API_BASE_URL}/questions`, {
+      headers: getAuthHeaders()
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching quiz questions:", error.message);
@@ -20,7 +28,9 @@ export const fetchQuizQuestions = async () => {
 // Get all questions- created
 export const getQuestions = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}`);
+    const response = await axios.get(`${API_BASE_URL}`, {
+      headers: getAuthHeaders()
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching questions:", error.message);
@@ -35,7 +45,12 @@ export const addQuestion = async (questionData) => {
   console.log({ questionData });
 
   try {
-    const response = await axios.post(`${API_BASE_URL}`, questionData);
+    const response = await axios.post(`${API_BASE_URL}`, questionData, {
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json'
+      }
+    });
     console.log({ response });
 
     return response.data;
@@ -48,7 +63,9 @@ export const addQuestion = async (questionData) => {
 // Delete a question by ID
 export const deleteQuestion = async (id) => {
   try {
-    await axios.delete(`${API_BASE_URL}/${id}`);
+    await axios.delete(`${API_BASE_URL}/${id}`, {
+      headers: getAuthHeaders()
+    });
     return { success: true, message: "Question deleted successfully" };
   } catch (error) {
     console.error("Error deleting question:", error.message);

@@ -87,3 +87,53 @@ export const createFacultyUser = async (facultyData) => {
     throw error;
   }
 };
+
+/**
+ * Creates a default admin user if none exists
+ */
+export const createDefaultAdmin = async () => {
+  try {
+    // Check if any admin user exists
+    const existingAdmin = await User.findOne({ userType: "admin" });
+    
+    if (existingAdmin) {
+      console.log("✅ Admin user already exists:", existingAdmin.email);
+      return existingAdmin;
+    }
+
+    // Create default admin user
+    const defaultAdmin = new User({
+      name: "System Administrator",
+      email: "admin@quiz.com",
+      password: "Admin@123", // This will be hashed by the pre-save middleware
+      userType: "admin",
+      picture: "https://ui-avatars.com/api/?name=System+Administrator&background=dc2626&color=fff"
+    });
+
+    await defaultAdmin.save();
+    console.log("✅ Default admin user created successfully:");
+    console.log("   Email: admin@quiz.com");
+    console.log("   Password: Admin@123");
+    console.log("   Role: admin");
+    
+    return defaultAdmin;
+  } catch (error) {
+    console.error("❌ Error creating default admin user:", error.message);
+    throw error;
+  }
+};
+
+/**
+ * Initialize all default users (faculty and admin)
+ */
+export const initializeDefaultUsers = async () => {
+  try {
+    console.log("🔄 Initializing default users...");
+    await createDefaultFaculty();
+    await createDefaultAdmin();
+    console.log("✅ Default users initialization completed");
+  } catch (error) {
+    console.error("❌ Error initializing default users:", error.message);
+    throw error;
+  }
+};

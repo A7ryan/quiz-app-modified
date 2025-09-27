@@ -15,9 +15,14 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [userType, setUserType] = useState("student");
+  const [facultyCode, setFacultyCode] = useState("");
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
   const [isChecked, setIsChecked] = useState(false);
+  
+  // Faculty registration code (in a real app, this should be in env variables)
+  const FACULTY_REGISTRATION_CODE = "FACULTY2024";
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -30,6 +35,9 @@ const Register = () => {
     }
     if (password !== confirmPassword)
       errors.confirmPassword = "Passwords do not match.";
+    if (userType === "faculty" && facultyCode !== FACULTY_REGISTRATION_CODE) {
+      errors.facultyCode = "Invalid faculty registration code.";
+    }
 
     setErrors(errors);
     return Object.keys(errors).length === 0;
@@ -43,7 +51,7 @@ const Register = () => {
       return;
     }
     try {
-      await registerUser(name, email, password);
+      await registerUser(name, email, password, userType);
       setMessage("✅ Registration successful");
       setTimeout(() => navigate("/login"), 1000);
     } catch (error) {
@@ -131,6 +139,55 @@ const Register = () => {
               showChecklist={false}
               Icon={<RiLock2Line />}
             />
+            
+            {/* User Type Selection */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Register as:</label>
+              <div className="flex gap-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="userType"
+                    value="student"
+                    checked={userType === "student"}
+                    onChange={(e) => {
+                      setUserType(e.target.value);
+                      setErrors((prevErrors) => ({ ...prevErrors, facultyCode: "" }));
+                    }}
+                    className="mr-2"
+                  />
+                  <span className="text-gray-700">Student</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="userType"
+                    value="faculty"
+                    checked={userType === "faculty"}
+                    onChange={(e) => setUserType(e.target.value)}
+                    className="mr-2"
+                  />
+                  <span className="text-gray-700">Faculty</span>
+                </label>
+              </div>
+            </div>
+            
+            {/* Faculty Registration Code (only shown for faculty) */}
+            {userType === "faculty" && (
+              <InputField
+                type="text"
+                name="facultyCode"
+                placeholder="Faculty Registration Code"
+                value={facultyCode}
+                onChange={(e) => {
+                  setFacultyCode(e.target.value);
+                  setErrors((prevErrors) => ({ ...prevErrors, facultyCode: "" }));
+                }}
+                error={errors.facultyCode}
+                required={true}
+                Icon={<RiLock2Line />}
+              />
+            )}
           </div>
 
           <a

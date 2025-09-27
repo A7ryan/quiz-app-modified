@@ -1,6 +1,13 @@
 import { registerUser, loginUser, ResetPassword } from "./authApi.js";
 import { fetchUserProfile } from "./userApi.jsx";
 import { submitQuizScore, fetchMyScores } from "./scoreApi.js";
+import { 
+  getDashboardStats, 
+  getAllStudents, 
+  getQuizResults,
+  downloadStudentData,
+  downloadQuizResults 
+} from "./adminApi.js";
 
 import {
   fetchQuizQuestions,
@@ -22,4 +29,10 @@ export {
   deleteQuestion,
   submitQuizScore,
   fetchMyScores,
+  // Admin functions
+  getDashboardStats,
+  getAllStudents,
+  getQuizResults,
+  downloadStudentData,
+  downloadQuizResults,
 };

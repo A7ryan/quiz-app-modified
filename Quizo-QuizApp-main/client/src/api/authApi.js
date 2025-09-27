@@ -37,9 +37,14 @@ export const loginUser = async (email, password) => {
 //   }
 // };
 
-export const registerUser = async (name, email, password) => {
+export const registerUser = async (name, email, password, userType = "student") => {
   try {
-    const response = await axios.post(`${conf.server_url}/api/auth/register`, { name, email, password });
+    const response = await axios.post(`${conf.server_url}/api/auth/register`, { 
+      name, 
+      email, 
+      password, 
+      userType 
+    });
     return response.data;
   } catch (error) {
     console.error("Axios Error:", error); // log full error

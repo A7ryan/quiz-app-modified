@@ -11,7 +11,9 @@ import {
   Register,
   Questions,
   QuizCreation,
+  RoleProtectedRoute,
 } from "../components";
+import AdminDashboard from "../components/admin/AdminDashboard";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,9 +24,30 @@ const router = createBrowserRouter(
         <Route path="register" element={<Register />} />
         <Route path="profile" element={<Profile />} />
         <Route path="resetPassword" element={<ResetPassword />} />
-        <Route path="quiz" element={<Quiz />} />
-        <Route path="questions" element={<Questions />} />
-        <Route path="customQuiz" element={<QuizCreation />} />
+        {/* Students can take quizzes */}
+        <Route path="quiz" element={
+          <RoleProtectedRoute allowedRoles="student">
+            <Quiz />
+          </RoleProtectedRoute>
+        } />
+        {/* Faculty can manage questions */}
+        <Route path="questions" element={
+          <RoleProtectedRoute allowedRoles="faculty">
+            <Questions />
+          </RoleProtectedRoute>
+        } />
+        {/* Faculty can create custom quizzes */}
+        <Route path="customQuiz" element={
+          <RoleProtectedRoute allowedRoles="faculty">
+            <QuizCreation />
+          </RoleProtectedRoute>
+        } />
+        {/* Admin dashboard */}
+        <Route path="admin" element={
+          <RoleProtectedRoute allowedRoles="admin">
+            <AdminDashboard />
+          </RoleProtectedRoute>
+        } />
       </Route>
     </Route>
   )

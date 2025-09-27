@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import conf from "../conf/conf.js";
-import { createDefaultFaculty } from "../utils/seedFaculty.js";
+import { initializeDefaultUsers } from "../utils/seedFaculty.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -14,8 +14,8 @@ const connectDB = async () => {
       `✅ MongoDB connected! DB Host: ${connectionInstance.connection.host}`
     );
     
-    // Create default faculty user if none exists
-    await createDefaultFaculty();
+    // Initialize default users (faculty and admin)
+    await initializeDefaultUsers();
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error.message);
     process.exit(1);

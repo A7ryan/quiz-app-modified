@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Carousel } from "react-responsive-carousel";
+import { selectIsAuthenticated, selectIsStudent, selectIsFaculty } from "../store/authSlice";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const quizImages = [
@@ -19,6 +21,9 @@ const questions = [
 export default function HomePage() {
   const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const isStudent = useSelector(selectIsStudent);
+  const isFaculty = useSelector(selectIsFaculty);
 
   // Auto-change questions every 3 seconds
   useEffect(() => {
@@ -29,7 +34,33 @@ export default function HomePage() {
   }, []);
 
   const handleStartQuiz = () => {
-    navigate("/quiz");
+    if (!isAuthenticated) {
+      navigate("/login");
+    } else if (isStudent) {
+      navigate("/quiz");
+    } else if (isFaculty) {
+      navigate("/customQuiz");
+    }
+  };
+
+  const getButtonText = () => {
+    if (!isAuthenticated) return "Login to Start";
+    if (isStudent) return "Start Quiz";
+    if (isFaculty) return "Create Quiz";
+    return "Get Started";
+  };
+
+  const getCurrentMessage = () => {
+    if (!isAuthenticated) {
+      return questions[currentQuestion];
+    }
+    if (isStudent) {
+      return "Ready to test your knowledge?";
+    }
+    if (isFaculty) {
+      return "Ready to create engaging quizzes?";
+    }
+    return questions[currentQuestion];
   };
 
   return (
@@ -65,21 +96,21 @@ export default function HomePage() {
           Quizo
         </motion.h1>
 
-        {/* Auto-Sliding Questions */}
+        {/* Dynamic Messages Based on User Role */}
         <motion.p
-          key={currentQuestion}
+          key={isAuthenticated ? 'authenticated' : currentQuestion}
           className="text-lg md:text-2xl mt-4 max-w-xl"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ duration: 1 }}
         >
-          {questions[currentQuestion]}
+          {getCurrentMessage()}
         </motion.p>
 
-        {/* Start Button */}
+        {/* Role-based Action Buttons */}
         <motion.div
-          className="mt-6"
+          className="mt-6 flex flex-col sm:flex-row gap-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
@@ -88,9 +119,31 @@ export default function HomePage() {
             className="px-6 py-3 text-lg bg-yellow-500 hover:bg-yellow-600 shadow-xl text-white rounded-md transition"
             onClick={handleStartQuiz}
           >
-            Start Quiz
+            {getButtonText()}
           </button>
+          
+          {/* Additional button for faculty */}
+          {isFaculty && (
+            <button
+              className="px-6 py-3 text-lg bg-blue-500 hover:bg-blue-600 shadow-xl text-white rounded-md transition"
+              onClick={() => navigate("/questions")}
+            >
+              Manage Questions
+            </button>
+          )}
         </motion.div>
+        
+        {/* Role indicator */}
+        {isAuthenticated && (
+          <motion.div
+            className="mt-4 text-sm opacity-75"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.75 }}
+            transition={{ delay: 1.5 }}
+          >
+            Logged in as: <span className="font-semibold capitalize">{isStudent ? 'Student' : 'Faculty'}</span>
+          </motion.div>
+        )}
       </div>
     </div>
   );

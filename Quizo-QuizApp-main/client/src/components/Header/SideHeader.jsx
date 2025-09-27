@@ -10,15 +10,20 @@ import {
   FiSlack,
   FiMenu,
   FiX,
+  FiBarChart2,
 } from "react-icons/fi";
 import sideHeaderbg from "../../assets/sideHeaderbg-bg.png";
 import { useSelector } from "react-redux";
+import { selectIsStudent, selectIsFaculty, selectIsAdmin, selectIsAuthenticated } from "../../store/authSlice";
 
 const SideHeader = ({ isOpen, toggleSidebar }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const authStatus = useSelector((state) => state.auth.status);
+  const authStatus = useSelector(selectIsAuthenticated);
+  const isStudent = useSelector(selectIsStudent);
+  const isFaculty = useSelector(selectIsFaculty);
+  const isAdmin = useSelector(selectIsAdmin);
 
   // Detect screen width changes
   useEffect(() => {
@@ -82,24 +87,42 @@ const SideHeader = ({ isOpen, toggleSidebar }) => {
                   expanded={expanded}
                 />
               )}
-              <SidebarLink
-                to="/quiz"
-                icon={<FiBook />}
-                text="Take Quiz"
-                expanded={expanded}
-              />
-              <SidebarLink
-                to="/customQuiz"
-                icon={<FiEdit />}
-                text="Create Quiz"
-                expanded={expanded}
-              />
-              <SidebarLink
-                to="/questions"
-                icon={<FiMove />}
-                text="Contribute"
-                expanded={expanded}
-              />
+              {/* Students can take quizzes */}
+              {(isStudent || !authStatus) && (
+                <SidebarLink
+                  to="/quiz"
+                  icon={<FiBook />}
+                  text="Take Quiz"
+                  expanded={expanded}
+                />
+              )}
+              {/* Faculty can create quizzes */}
+              {isFaculty && (
+                <SidebarLink
+                  to="/customQuiz"
+                  icon={<FiEdit />}
+                  text="Create Quiz"
+                  expanded={expanded}
+                />
+              )}
+              {/* Faculty can contribute questions */}
+              {isFaculty && (
+                <SidebarLink
+                  to="/questions"
+                  icon={<FiMove />}
+                  text="Manage Questions"
+                  expanded={expanded}
+                />
+              )}
+              {/* Admin dashboard */}
+              {isAdmin && (
+                <SidebarLink
+                  to="/admin"
+                  icon={<FiBarChart2 />}
+                  text="Admin Dashboard"
+                  expanded={expanded}
+                />
+              )}
               <SidebarLink
                 to="#"
                 icon={<FiSlack />}

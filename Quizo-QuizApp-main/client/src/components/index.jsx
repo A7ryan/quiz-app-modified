@@ -5,6 +5,7 @@ import Login from "./auth/Login.jsx";
 import Register from "./auth/Register.jsx";
 import Profile from "./auth/Profile.jsx";
 import ResetPassword from "./auth/ResetPassword";
+import RoleProtectedRoute from "./auth/RoleProtectedRoute.jsx";
 import Quiz from "./quiz";
 import Questions from "./QuizQuestions"
 import QuizCreation from "./quizCreation/"
@@ -17,6 +18,7 @@ export {
   Register,
   Profile,
   ResetPassword,
+  RoleProtectedRoute,
   Quiz,
   Questions,
   QuizCreation,

@@ -56,7 +56,7 @@ const userSchema = new Schema(
     },
     userType: {
       type: String,
-      enum: ["student", "faculty"],
+      enum: ["student", "faculty", "admin"],
       required: true,
       default: "student",
     },
